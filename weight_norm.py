@@ -41,7 +41,7 @@ In terms of the standard deviation, sqrt(V[y]) = σ.
 We can compute v / ||v|| * x by a forward pass through the weight
 normalized module where we set the bias b = 0 and the scale g = 1
 and then compte V[v / ||v|| * x] and E[v / ||v|| * x] as statistics
- over the batch.
+over the batch.
 """
 
 
@@ -64,7 +64,7 @@ def hook_remover_hook(
     handles: List[torch.utils.hooks.RemovableHandle],
     own_hook_id: str,
 ):
-    """A forward hook that when called removes the other given hooks (`hanldes`) and then removes itself.
+    """A forward hook that when called removes the other given hooks (`handles`) and then removes itself.
 
     Intended to be used as a forward hook. It will remove itself after executing and hence will be called only once.
     """
@@ -96,7 +96,7 @@ def weight_norm(
     initializer: Callable = nn.init.kaiming_normal_,
     **initializer_kwargs: Dict[str, Any],
 ):
-    """Wrap a module with weight normalization including data dependent initialization.
+    """Wrap a module with weight normalization [1] including data dependent initialization.
 
     Args:
         module (Union[nn.Conv1d, nn.Conv2d, nn.Conv3d, nn.Linear]): Module to wrap
@@ -111,6 +111,9 @@ def weight_norm(
 
     Returns:
         nn.Module: Weight normalized module.
+
+    [1] Weight Normalization: A Simple Reparameterization to Accelerate Training of Deep Neural Networks \
+        https://arxiv.org/abs/1602.07868
     """
     if dim is None:
         dim = 1 if getattr(module, "transposed", False) else 0
@@ -156,7 +159,7 @@ def wn_init_forward_pre_hook(
         None: Does not alter the module input.
 
     [1] Weight Normalization: A Simple Reparameterization to Accelerate Training of Deep Neural Networks \
-        https://arxiv.org/pdf/1602.07868.pdf
+        https://arxiv.org/abs/1602.07868
     """
     weight_v = getattr(module, name + "_v")
     weight_g = getattr(module, name + "_g")
@@ -197,7 +200,7 @@ def wn_init_forward_hook(
         torch.Tensor: Output as computed after data-dependent initialization. Has no gradients.
 
     [1] Weight Normalization: A Simple Reparameterization to Accelerate Training of Deep Neural Networks \
-        https://arxiv.org/pdf/1602.07868.pdf
+        https://arxiv.org/abs/1602.07868
     """
     if input[0].ndim == 1 or not input[0].shape[0] > 1:
         raise RuntimeError(f"Cannnot do data-based WeightNorm initialization without a batch {input[0].shape=}")
