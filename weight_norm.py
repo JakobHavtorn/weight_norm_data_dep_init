@@ -175,6 +175,8 @@ def wn_init_forward_pre_hook(
     weight = torch._weight_norm(weight_v, weight_g, dim=dim)
     setattr(module, name, weight)
 
+    return input.detach()
+
 
 def wn_init_forward_hook(
     module: Union[nn.Conv1d, nn.Conv2d, nn.Conv3d, nn.Linear],
